@@ -12,7 +12,8 @@ Since `.env.*` files are included in `.gitignore`, they are not tracked by versi
 For `.env.test`, set `PGDATABASE` to the name of the test database.
 - For `.env.development`, set `PGDATABASE` to the name of the development database.
 
-eg PGDATABASE=<database_name>
+eg to set test database you can do the following: 
+eg PGDATABASE=<database_name_test>
 
 3. Save the files. These files will allow the application to connect to the correct databases locally.
 
