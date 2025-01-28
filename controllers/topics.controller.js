@@ -1,11 +1,16 @@
-const endpointsJson = require("../endpoints.json");
+const selectTopics = require("../models/topics.model");
 
 const getTopics = (req, res) => {
-    res.status(200).send ({topics: endpointsJson})
 
-    .catch((err) =>{
-        next (err)
+    selectTopics()
+    .then((topics) =>{
+        res.status(200).send({topics})
+
     })
+    
+    
+
+    
 }
 
 module.exports = getTopics;
