@@ -19,3 +19,31 @@ describe("GET /api", () => {
       });
   });
 });
+
+
+describe("GET /api/topics", () => {
+  test("200: Responds with an object containing an array of topics, each having 'slug' and 'description'", () => {
+    return request(app)
+      .get("/api/topics")
+      .expect(200)
+      .then(({ body}) => {
+        console.log({body});
+        expect(body.topics).toHaveProperty("GET /api/topics");
+        body.topics["GET /api/topics"].exampleResponse.topics.forEach(topic => {
+          expect(topic).toHaveProperty("slug");
+          expect(topic).toHaveProperty("description")
+        });
+
+      });
+  });
+  test.only("404: Responds with error when route does not exist", () => {
+    return request(app)
+      .get("/api/nonexistent")
+      .expect(404)
+      .then(({ body }) => {
+        console.log({body});
+        
+        expect(body.message).toBe("Not Found");
+      });
+    });
+});
