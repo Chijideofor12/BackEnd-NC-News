@@ -6,25 +6,29 @@ const {
 } = require("./errors");
 const getTopics = require("./controllers/topics.controller");
 const getApiDocs = require("./controllers/api_docs.controller");
-const getArticleById = require("./controllers/article.controller");
+const {
+  getArticleById,
+  getArticle
+} = require("./controllers/article.controller");
+
 const app = express();
 
 app.get("/api", getApiDocs);
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:id", getArticleById);
+app.get("/api/articles", getArticle);
 
 app.all("*", handleNotFound);
 
 //error handling middleware
 
 app.use((err, req, res, next) => {
-    if (err.code === "22P02" ) {
-      res.status(400).send({ error: "Bad Request" });
-    } else {
-       
-      next(err); 
-    }
-  });
+  if (err.code === "22P02") {
+    res.status(400).send({ error: "Bad Request" });
+  } else {
+    next(err);
+  }
+});
 
 app.use((err, req, res, next) => {
   if (err.message === "article not found") {
@@ -33,7 +37,8 @@ app.use((err, req, res, next) => {
     next(err);
   }
 });
-//app.use(handleCustomErrors)
+
+app.use(handleCustomErrors)
 app.use(handleServerErrors);
 
 module.exports = app;
