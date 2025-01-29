@@ -6,6 +6,7 @@ const app = require("../app.js")
 const db = require("../db/connection.js")
 const seed = require("../db/seeds/seed.js")
 const testData = require("../db/data/test-data")
+require("jest-sorted");
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -81,5 +82,44 @@ describe("GET /api/articles/:article_id", () => {
         })
       })
   });
+  describe("GET /api/articles", ()=>{
+    test("200: Responds with array of articles objects ", () =>{
+      return request(app)
+      .get("/api/articles")
+      .expect(200)
+        .then(({ body: { articles } }) => { 
+          expect(Array.isArray(articles)).toBe(true); 
+          expect(articles.length).toBeGreaterThan(0); 
+          
+          const article = articles[0]; 
+        expect(article).toHaveProperty("author");
+        expect(article).toHaveProperty("title");
+        expect(article).toHaveProperty("article_id");
+        expect(article).toHaveProperty("topic");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes");
+        expect(article).toHaveProperty("article_img_url");
+        expect(article).toHaveProperty("comment_count");
+        });
+    })
+    test("should be able to order by date in descending order", () => {
+      return request(app)
+        .get("/api/articles?sort_by=created_at&order=desc") // Correct order value
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSorted({ key: "created_at", descending: true });
+        });
+    });
+    test("400: Responds with error when sort_by is invalid", () => {
+      return request(app)
+        .get("/api/articles?sort_by=invalid_column&order=desc")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort query");
+        });
+    });
+    
+    
+  })
 
 
