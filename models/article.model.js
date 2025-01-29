@@ -10,7 +10,7 @@ const selectArticleById = (id) => {
     )
     .then(({ rows }) => {
       if (rows.length === 0) {
-        return Promise.reject({ message: "article not found" });
+        return Promise.reject({ status: 404, msg: "article not found" });
       } else {
         return rows[0];
       }
