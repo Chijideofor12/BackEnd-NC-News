@@ -21,7 +21,15 @@ const selectArticle = (queries) => {
     const sort_by = queries.sort_by || "created_at"; 
     const order = queries.order || "desc"; 
 
-    const validColumnNamesToSortBy = ["created_at"]; 
+    const validColumnNamesToSortBy = [
+        "article_id",
+        "title",
+        "topic",
+        "author",
+        "created_at",
+        "votes",
+        "comment_count"
+    ]; 
 
     if (!validColumnNamesToSortBy.includes(sort_by)) {
         return Promise.reject({ status: 400, msg: "Invalid sort query" });
