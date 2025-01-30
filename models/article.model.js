@@ -59,7 +59,31 @@ const selectArticle = (queries) => {
         return rows;
     });
 };
+const updateArticleVotes = (article_id, inc_votes) => {
+    if (typeof inc_votes !== "number") {
+      return Promise.reject({ status: 400, msg: "Invalid data type" });
+    }
+  
+    return db.query("SELECT * FROM articles WHERE article_id = $1", [article_id])
+          .then(({ rows }) => {
+            if (rows.length === 0) {
+              return Promise.reject({ status: 404, msg: "This Article is not found" });
+            }
+        
+   const queryStr = 
+        `UPDATE articles 
+         SET votes = votes + $1 
+         WHERE article_id = $2 
+         RETURNING *;`
+        
+      return db.query(queryStr, [inc_votes, article_id] )
+      .then(({ rows }) => {
+        return rows[0];
+      });
+    })
+  };
   
 
 
-module.exports = { selectArticleById, selectArticle };
+
+module.exports = { selectArticleById, selectArticle, updateArticleVotes };
