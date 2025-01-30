@@ -121,8 +121,17 @@ describe("/api/articles/:article_id",()=>{
         expect(body.msg).toBe("This Article is not found");
       });
   });
+  test("400: Responds with error with invalid id article Id", () => {
+    return request(app)
+      .patch("/api/articles/not-a-number")
+      .send({ inc_votes: 1 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.error).toBe("Bad Request");
+      });
 
   })
+})
 })
 
   describe("GET /api/articles", ()=>{
