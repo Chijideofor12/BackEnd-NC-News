@@ -63,7 +63,12 @@ describe("/api/articles/:article_id",()=>{
         expect(article).toHaveProperty("created_at");
         expect(article).toHaveProperty("votes", 100);
         expect(article).toHaveProperty("article_img_url", "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
-        });
+        
+        //GET /api/articles/:article_id (comment_count)
+        expect(article).toHaveProperty("comment_count");
+       
+
+      });
 
       });
       test("404: Responds with error when id is not found", () => {
@@ -71,7 +76,7 @@ describe("/api/articles/:article_id",()=>{
         .get("/api/articles/777777777")
         .expect(404)
         .then(({body}) =>{
-          expect(body.msg).toBe("article not found")
+          expect(body.msg).toBe("Article not found")
         })
       })
       test("400: Responds with error when id is not a number", () => {
