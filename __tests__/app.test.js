@@ -119,7 +119,8 @@ describe("GET /api/articles/:article_id", () => {
         });
     });
   })
-  describe("GET api/articles/:article_id/comments", ()=>{
+  describe("api/articles/:article_id/comments", () => {
+    describe("GET api/articles/:article_id/comments", ()=>{
     test("200: Responds with array of comments for the given article_id ", () =>{
       return request(app)
       .get("/api/articles/9/comments")
@@ -145,6 +146,39 @@ describe("GET /api/articles/:article_id", () => {
               expect(body.msg).toBe("Article not found");
             });
         }); 
+  })
+  describe("POST: api/articles/:article_id/comments", ()=>{
+    test("200: Respond with posted comment", ()=>{
+      return request(app)
+      .post("/api/articles/5/comments")
+      .send({
+        username: "lurker",
+        body:"I love IceCream"
+      })
+      .expect(201)
+      .then(({ body }) => {
+        const comment = body.comment; 
+        expect(comment).toHaveProperty("author", "lurker");
+        expect(comment).toHaveProperty("body", "I love IceCream");
+        expect(comment).toHaveProperty("created_at");
+        expect(comment).toHaveProperty("comment_id"); 
+        expect(comment).toHaveProperty("article_id", 5)
+      })
+    })
+    test("400: Incorrect data types, Responds with error when author is a number", () => {
+      return request(app)
+      .post("/api/articles/5/comments")
+      .send({
+        username: 2,
+        body:"I love IceCream"
+      })
+      .expect(400)
+      .then(({body: {error}}) =>{
+        expect(error).toBe("Bad Request")
+      })
+    })
+  })
+  
   })
   
   
