@@ -296,6 +296,24 @@ describe("/api/comments", ()=>{
     
     });
   })
+  describe("GET /api/users", () => {
+    test("200: Respond with an array of all users", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Array.isArray(body.users)).toBe(true);
+          expect(body.users[0]).toHaveProperty("username");
+          expect(body.users[0]).toHaveProperty("name");
+          expect(body.users[0]).toHaveProperty("avatar_url");
+          body.users.forEach((user) =>{
+            expect(typeof user.username).toBe("string");
+            expect(typeof user.name).toBe("string");
+          })
+          })
+        });
+    });
+  
 
   
   
