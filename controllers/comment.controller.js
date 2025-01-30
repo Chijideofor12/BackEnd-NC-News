@@ -34,7 +34,6 @@ const getCommentPerArticleId = (req, res, next) => {
     res.status (204).send();
    })
    .catch((err) => {
-    console.error(err);  
     next(err); 
 });
   }

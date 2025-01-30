@@ -9,27 +9,55 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  
   "GET /api/articles": {
-  "description": "Retrieves all articles with optional sorting queries.",
-  "queries": ["sort_by (column name)", "order (asc or desc)"],
+  "description": "Retrieves all articles with optional sorting and topic filtering queries.",
+  "queries": [
+    "sort_by (column name)",
+    "order (asc or desc)",
+    "topic (string)"
+  ],
   "default": {
     "sort_by": "created_at",
     "order": "desc"
   },
-  "exampleRequest": "/api/articles?sort_by=title&order=asc",
+  "exampleRequest": "/api/articles?sort_by=title&order=asc&topic=coding",
   "exampleResponse": {
     "articles": [
       {
         "article_id": 1,
         "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "author": "weegembump",
+        "topic": "cooking",
+        "author": "weegembump",
         "created_at": "2025-01-30T00:20:03.908Z",
         "votes": 10,
         "comment_count": 6
+      },
+      {
+        "article_id": 2,
+        "title": "Why Coding is Fun",
+        "topic": "coding",
+        "author": "johndoe",
+        "created_at": "2025-01-31T00:20:03.908Z",
+        "votes": 15,
+        "comment_count": 2
       }
     ]
-  }
+  },
+  "errorResponses": [
+    {
+      "status": 400,
+      "msg": "Invalid sort query"
+    },
+    {
+      "status": 400,
+      "msg": "Invalid order query"
+    },
+    {
+      "status": 404,
+      "msg": "Topic not found"
+    }
+  ]
 },
 
 

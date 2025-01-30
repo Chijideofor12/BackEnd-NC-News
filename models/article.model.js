@@ -17,56 +17,128 @@ const selectArticleById = (id) => {
     });
 };
 
+// const selectArticle = (queries) => {
+//     const sort_by = queries.sort_by || "created_at"; 
+//     const order = queries.order || "desc"; 
+
+//     const validColumnNamesToSortBy = [
+//         "article_id",
+//         "title",
+//         "topic",
+//         "author",
+//         "created_at",
+//         "votes",
+//         "comment_count"
+//     ]; 
+
+//     if (!validColumnNamesToSortBy.includes(sort_by)) {
+//         return Promise.reject({ status: 400, msg: "Invalid sort query" });
+//     }
+
+//     const validOrders = ["asc", "desc"];
+//     if (!validOrders.includes(order)) {
+//         return Promise.reject({ status: 400, msg: "Invalid order query" });
+//     }
+
+//     let SQLString = `
+//         SELECT 
+//             articles.article_id,          
+//             articles.title,
+//             articles.topic,
+//             articles.author,
+//             articles.created_at,
+//             articles.votes,
+//             articles.article_img_url,
+//             COUNT(comments.comment_id) AS comment_count
+//         FROM 
+//             articles
+//         LEFT JOIN comments ON articles.article_id = comments.article_id  
+//         GROUP BY 
+//             articles.article_id,          
+//             articles.title, 
+//             articles.topic,
+//             articles.author,
+//             articles.created_at,
+//             articles.votes,
+//             articles.article_img_url          
+//         ORDER BY ${sort_by} ${order};`
+
+//     return db.query(SQLString).then(({ rows }) => {
+//         return rows;
+//     });
+// };
 const selectArticle = (queries) => {
-    const sort_by = queries.sort_by || "created_at"; 
-    const order = queries.order || "desc"; 
+  const sort_by = queries.sort_by || "created_at"; 
+  const order = queries.order || "desc"; 
+  const topic = queries.topic;
 
-    const validColumnNamesToSortBy = [
-        "article_id",
-        "title",
-        "topic",
-        "author",
-        "created_at",
-        "votes",
-        "comment_count"
-    ]; 
+  const validColumnNamesToSortBy = ["article_id", "title", "topic", "author", "created_at", "votes", "article_img_url"];
+  const validOrders = ["asc", "desc"];
 
-    if (!validColumnNamesToSortBy.includes(sort_by)) {
-        return Promise.reject({ status: 400, msg: "Invalid sort query" });
-    }
+  if (!validColumnNamesToSortBy.includes(sort_by)) {
+      return Promise.reject({ status: 400, msg: "Invalid sort query" });
+  }
 
-    const validOrders = ["asc", "desc"];
-    if (!validOrders.includes(order)) {
-        return Promise.reject({ status: 400, msg: "Invalid order query" });
-    }
+  if (!validOrders.includes(order)) {
+      return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
 
-    let SQLString = `
-        SELECT 
-            articles.article_id,          
-            articles.title,
-            articles.topic,
-            articles.author,
-            articles.created_at,
-            articles.votes,
-            articles.article_img_url,
-            COUNT(comments.comment_id) AS comment_count
-        FROM 
-            articles
-        LEFT JOIN comments ON articles.article_id = comments.article_id  
-        GROUP BY 
-            articles.article_id,          
-            articles.title, 
-            articles.topic,
-            articles.author,
-            articles.created_at,
-            articles.votes,
-            articles.article_img_url          
-        ORDER BY ${sort_by} ${order};`
+  let SQLString = `
+      SELECT 
+          articles.article_id,          
+          articles.title,
+          articles.topic,
+          articles.author,
+          articles.created_at,
+          articles.votes,
+          articles.article_img_url,
+          COUNT(comments.comment_id) AS comment_count
+      FROM 
+          articles
+      LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
-    return db.query(SQLString).then(({ rows }) => {
-        return rows;
-    });
+  const queryValues = [];
+
+  if (topic) {
+      return db.query(`SELECT * FROM topics WHERE slug = $1;`, [topic])
+          .then(({ rows }) => {
+              if (rows.length === 0) {
+                  return Promise.reject({ status: 404, msg: "Topic not found" });
+              }
+
+              SQLString += ` WHERE articles.topic = $1`;
+              queryValues.push(topic);
+
+              SQLString += ` 
+                  GROUP BY 
+                      articles.article_id,          
+                      articles.title, 
+                      articles.topic,
+                      articles.author,
+                      articles.created_at,
+                      articles.votes,
+                      articles.article_img_url          
+                  ORDER BY ${sort_by} ${order};`;
+
+              return db.query(SQLString, queryValues).then(({ rows }) => rows);
+          });
+  }
+
+  SQLString += ` 
+      GROUP BY 
+          articles.article_id,          
+          articles.title, 
+          articles.topic,
+          articles.author,
+          articles.created_at,
+          articles.votes,
+          articles.article_img_url          
+      ORDER BY ${sort_by} ${order};`;
+
+  return db.query(SQLString).then(({ rows }) => rows);
 };
+
+
 const updateArticleVotes = (article_id, inc_votes) => {
     if (typeof inc_votes !== "number") {
       return Promise.reject({ status: 400, msg: "Invalid data type" });
