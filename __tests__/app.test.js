@@ -296,7 +296,8 @@ describe("/api/comments", ()=>{
     
     });
   })
-  describe("GET /api/users", () => {
+  describe("/api/users",()=>{
+    describe("GET /api/users", () => {
     test("200: Respond with an array of all users", () => {
       return request(app)
         .get("/api/users")
@@ -312,8 +313,52 @@ describe("/api/comments", ()=>{
           })
           })
         });
+    })
+   
+  })
+   describe("GET /api/articles/SORT QUERIES", () => {
+    test("200: Returns all articles sorted by created_at by default in descending order", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeInstanceOf(Array);
+          expect(articles).toBeSortedBy("created_at", { descending: true });
+        });
     });
-  
+    test("200: Sorts articles by any valid column", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title&order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("title", { ascending: true });
+        });
+    });
+    test("200: Allows sorting order to be specified (ascending)", () => {
+      return request(app)
+        .get("/api/articles?sort_by=article_id&order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("article_id", { ascending: true });
+        });
+    })
+    test("400: Responds with error message for invalid sort_by column", () => {
+      return request(app)
+        .get("/api/articles?sort_by=column_not_valid")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort query");
+        });
+    });
+    test("400: Responds with error message for invalid order value", () => {
+      return request(app)
+        .get("/api/articles?order=order_is_invalid_")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid order query");
+        });
+    });
+  });
 
   
   
