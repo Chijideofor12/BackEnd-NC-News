@@ -1,6 +1,6 @@
-const endpointsJson = require("../endpoints.json");
+const endpointsJson = require("../endpoints.json")
 /* Set up your test imports here */
-const request = require("supertest");
+const request = require("supertest")
 const app = require("../app.js")
 /* Set up your beforeEach & afterAll functions here */
 const db = require("../db/connection.js")
@@ -265,8 +265,38 @@ describe("/api/articles/:article_id",()=>{
         });
     }); 
   })
-  
   })
+
+describe("/api/comments", ()=>{
+    describe("DELETE /api/comments/:comment_id", () => {
+
+      test("204: Successfully deletes the comment and returns no content", () => {
+        return request(app)
+          .delete("/api/comments/1")
+          .expect(204);
+      });
+    
+      test("400: Invalid comment_id (not a number)", () => {
+        return request(app)
+          .delete("/api/comments/not-a-number")
+          .expect(400)
+          .then(({ body: { error } }) => {
+            expect(error).toBe("Bad Request");
+          });
+      });
+    
+      test("404: Comment not found for valid but non-existent ID", () => {
+        return request(app)
+          .delete("/api/comments/9999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Comment not found");
+          });
+      });
+    
+    });
+  })
+
   
   
   
