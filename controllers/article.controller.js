@@ -25,9 +25,7 @@ const getArticle = (req, res, next) => {
     .then((articles) => {  
         res.status(200).send({ articles });   
     })
-    .catch((err) => {
-        console.log(err, "<<<<<<");
-        
+    .catch((err) => {  
         next(err); 
     });
 };
