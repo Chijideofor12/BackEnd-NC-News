@@ -114,7 +114,26 @@
       "400": "Invalid comment ID",
       "404": "Comment not found"
     }
+  },
+  "GET /api/users": {
+  "description": "Fetches a list of all users with their details.",
+  "queries": [],
+  "exampleResponse": {
+    "users": [
+      {
+        "username": "butter_bridge",
+        "name": "jonny",
+        "avatar_url":  "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      },
+      {
+        "username": "rogersop",
+        "name": "paul",
+        "avatar_url":  "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4"
+      }
+    ]
   }
+}
+
 }
 
 
