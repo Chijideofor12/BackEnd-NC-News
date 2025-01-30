@@ -48,7 +48,8 @@ describe("All bad urls", () => {
     });
   });
 })
-describe("GET /api/articles/:article_id", () => {
+describe("/api/articles/:article_id",()=>{
+  describe("GET /api/articles/:article_id", () => {
   test("200: Responds with an article object based on the given article_id", () => {
     return request(app)
       .get("/api/articles/1")
@@ -81,7 +82,49 @@ describe("GET /api/articles/:article_id", () => {
           expect(error).toBe("Bad Request")
         })
       })
+  });describe("PATCH /api/articles/:article_id", ()=>{
+    test("200: Increments votes and returns updated article", ()=>{
+      return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 5 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toHaveProperty("article_id", 1);
+        expect(body.article).toHaveProperty("votes", expect.any(Number));
+      });
+    })
+    test("400: Responds with error when inc_votes is missing", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.error).toBe("Bad Request");
+        });
+    });
+    test("400: Responds with error when inc_votes is not a number", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: "ten" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.error).toBe("Bad Request");
+        });
+    });
+
+  test("404: Responds with error when article_id does not exist", () => {
+    return request(app)
+      .patch("/api/articles/9999")
+      .send({ inc_votes: 1 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("This Article is not found");
+      });
   });
+
+  })
+})
+
   describe("GET /api/articles", ()=>{
     test("200: Responds with array of articles objects ", () =>{
       return request(app)

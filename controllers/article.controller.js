@@ -1,6 +1,7 @@
 const {
     selectArticleById,
-    selectArticle
+    selectArticle,
+    updateArticleVotes
 }= require("../models/article.model");
 
 const getArticleById = (req, res, next) => {
@@ -29,7 +30,23 @@ const getArticle = (req, res, next) => {
     });
 };
 
+    const patchArticleVotes = (req, res, next) => {
+        const { article_id } = req.params;
+        const { inc_votes } = req.body;
+      
+        updateArticleVotes(article_id, inc_votes)
+          .then((updatedArticle) => {
+           console.log(updatedArticle, "update");
+            
+            res.status(200).json({ article: updatedArticle });
+          })
+          .catch((err) => {
+            console.error(err);  
+            next(err); 
+        });
+}
 
-module.exports = { getArticleById, getArticle };
+
+module.exports = { getArticleById, getArticle, patchArticleVotes };
 
 
