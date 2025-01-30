@@ -20,6 +20,10 @@ const selectCommentPerArticleId = (article_id) => {
 };
 
 const addComment = (article_id, username, body) => {
+
+  if (!username || !body) {
+    return Promise.reject({ status: 400, msg: "Missing required fields" });
+  }
     if (typeof username !== "string" || typeof body !== "string") {
       const error = { status: 400, msg: "Invalid data type" };
       return Promise.reject(error);  
@@ -28,7 +32,11 @@ const addComment = (article_id, username, body) => {
     return db.query("SELECT * FROM articles WHERE article_id = $1", [article_id])
       .then(({ rows }) => {
         if (rows.length === 0) {
-          return Promise.reject({ status: 404, msg: "Article not found" });
+          return Promise.reject({ status: 404, msg: "Article Id not found" });
+        }
+
+        if (isNaN(article_id)) {
+          return Promise.reject({ status: 400, msg: "Bad Request" });
         }
   
         return db.query("SELECT * FROM users WHERE username = $1", [username])
