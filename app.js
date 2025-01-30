@@ -35,7 +35,7 @@ app.all("*", handleNotFound);
 //error handling middleware
 
 app.use((err, req, res, next) => {
-  if (err.code === "22P02" ||  err.msg === "Invalid data type" ) {
+  if (err.code === "22P02" ||  err.msg === "Invalid data type" || err.msg === "Missing required fields") {
    return  res.status(400).send({ error: "Bad Request" });
   } else {
     next(err);

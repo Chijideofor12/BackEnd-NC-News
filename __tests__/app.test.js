@@ -220,6 +220,41 @@ describe("/api/articles/:article_id",()=>{
         expect(error).toBe("Bad Request")
       })
     })
+    test("400: Bad request, responds with error when body is incomplete (missing username)", () => {
+      return request(app)
+        .post("/api/articles/5/comments")
+        .send({
+          body: "I love IceCream"
+        })
+        .expect(400)
+        .then(({ body: { error } }) => {
+          expect(error).toBe("Bad Request");
+        });
+    });
+    test("400: Bad request, responds with error when article_id is invalid", () => {
+      return request(app)
+        .post("/api/articles/not-a-number/comments")
+        .send({
+          username: "lurker",
+          body: "I love IceCream"
+        })
+        .expect(400)
+        .then(({ body: { error } }) => {
+          expect(error).toBe("Bad Request");
+        });
+    });
+    test("404: Responds with error if article_id does not exist", () => {
+      return request(app)
+        .post("/api/articles/999999/comments")
+        .send({
+          username: "lurker",
+          body: "I love IceCream"
+        })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article Id not found");
+        });
+    }); 
   })
   
   })
