@@ -358,7 +358,36 @@ describe("/api/comments", ()=>{
           expect(body.msg).toBe("Invalid order query");
         });
     });
+    test("200: Returns articles filtered by a valid topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeInstanceOf(Array);
+          expect(articles.length).toBeGreaterThan(0);
+          articles.forEach(article => {
+            expect(article).toHaveProperty("topic", "mitch");
+          });
+        });
+    });
+    test("404: Returns error when topic does not exist", () => {
+      return request(app)
+        .get("/api/articles?topic=topic-does-not-exist")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Topic not found");
+        });
   });
+  test("200: Returns all articles when no topic is specified", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBeGreaterThan(0);
+      });
+  });
+});
 
   
   

@@ -20,12 +20,14 @@ const getArticleById = (req, res, next) => {
 const getArticle = (req, res, next) => {
     const queries = req.query;
     
+    
     selectArticle(queries)
     .then((articles) => {  
         res.status(200).send({ articles });   
     })
     .catch((err) => {
-        console.error(err);  
+        console.log(err, "<<<<<<");
+        
         next(err); 
     });
 };
@@ -35,13 +37,10 @@ const getArticle = (req, res, next) => {
         const { inc_votes } = req.body;
       
         updateArticleVotes(article_id, inc_votes)
-          .then((updatedArticle) => {
-           console.log(updatedArticle, "update");
-            
+          .then((updatedArticle) => {     
             res.status(200).json({ article: updatedArticle });
           })
-          .catch((err) => {
-            console.error(err);  
+          .catch((err) => { 
             next(err); 
         });
 }
