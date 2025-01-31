@@ -308,14 +308,15 @@ describe("/api/comments", ()=>{
         .get("/api/users")
         .expect(200)
         .then(({ body }) => {
-          expect(Array.isArray(body.users)).toBe(true);
-          expect(body.users[0]).toHaveProperty("username");
-          expect(body.users[0]).toHaveProperty("name");
-          expect(body.users[0]).toHaveProperty("avatar_url");
-          body.users.forEach((user) =>{
+          body.users.forEach((user) => {
+            expect(user).toHaveProperty("username");
+            expect(user).toHaveProperty("name");
+            expect(user).toHaveProperty("avatar_url");
+    
             expect(typeof user.username).toBe("string");
             expect(typeof user.name).toBe("string");
-          })
+            expect(typeof user.avatar_url).toBe("string");
+          });
           })
         });
     })
