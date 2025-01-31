@@ -1,5 +1,9 @@
 const db = require("../db/connection.js");
 
+const selectComments = () => {
+  return db.query("SELECT * FROM comments;")
+  .then(({ rows }) => rows);
+};
 const selectCommentPerArticleId = (article_id) => {
   return db
     .query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id]) // Check if the article exists first
@@ -74,7 +78,7 @@ const addComment = (article_id, username, body) => {
   };
   
   
-  module.exports = { selectCommentPerArticleId, addComment, deleteCommentById }
+  module.exports = { selectCommentPerArticleId, addComment, deleteCommentById, selectComments }
   
 
 
