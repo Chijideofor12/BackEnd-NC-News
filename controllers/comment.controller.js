@@ -1,8 +1,19 @@
 const { 
     selectCommentPerArticleId, 
     addComment,
-    deleteCommentById
+    deleteCommentById, 
+    selectComments
 }= require("../models/comment.model");
+
+const getComments = (req, res, next) => {
+  selectComments()
+    .then((comments) => {
+      res.status(200).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+  });
+};
 
 const getCommentPerArticleId = (req, res, next) => {
     const { article_id } = req.params; 
@@ -38,4 +49,4 @@ const getCommentPerArticleId = (req, res, next) => {
 });
   }
 
-module.exports = { getCommentPerArticleId, postCommentPerArticleId, removeComment }
+module.exports = { getCommentPerArticleId, postCommentPerArticleId, removeComment, getComments }

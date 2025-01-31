@@ -274,12 +274,26 @@ describe("/api/articles/:article_id",()=>{
 
 describe("/api/comments", ()=>{
     describe("DELETE /api/comments/:comment_id", () => {
-
       test("204: Successfully deletes the comment and returns no content", () => {
         return request(app)
-          .delete("/api/comments/1")
-          .expect(204);
+          .get("/api/comments")
+          .then(({ body: { comments } }) => {
+            expect(comments.some(comment => comment.comment_id === 1)).toBe(true); 
+      
+            return request(app)
+              .delete("/api/comments/1")
+              .expect(204);
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/comments")
+              .expect(200);
+          })
+          .then(({ body: { comments } }) => {
+            expect(comments.some(comment => comment.comment_id === 1)).toBe(false); 
+          });
       });
+      
     
       test("400: Invalid comment_id (not a number)", () => {
         return request(app)
