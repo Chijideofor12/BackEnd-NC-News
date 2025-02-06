@@ -5,22 +5,18 @@ const {
 }= require("../models/article.model");
 
 const getArticleById = (req, res, next) => {
-    const  {id} = req.params
-    selectArticleById(id)
+    const { article_id } = req.params;
+    selectArticleById(article_id)
     .then((article) =>{
         res.status(200).send({article})   
     })
     .catch((err) => { 
         next(err);
     });
-    
-
 };
 
 const getArticle = (req, res, next) => {
-    const queries = req.query;
-    
-    
+    const queries = req.query; 
     selectArticle(queries)
     .then((articles) => {  
         res.status(200).send({ articles });   
@@ -32,8 +28,7 @@ const getArticle = (req, res, next) => {
 
     const patchArticleVotes = (req, res, next) => {
         const { article_id } = req.params;
-        const { inc_votes } = req.body;
-      
+        const { inc_votes } = req.body;   
         updateArticleVotes(article_id, inc_votes)
           .then((updatedArticle) => {     
             res.status(200).json({ article: updatedArticle });

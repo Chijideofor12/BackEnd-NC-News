@@ -4,37 +4,12 @@ const {
   handleNotFound,
   handleCustomErrors,
 } = require("./errors");
-const getTopics = require("./controllers/topics.controller");
-const getApiDocs = require("./controllers/api_docs.controller");
-const {
-  getArticleById,
-  getArticle,
-  patchArticleVotes
-} = require("./controllers/article.controller");
-const {
-    getCommentPerArticleId,
-    postCommentPerArticleId,
-    removeComment,
-    getComments
-} = require("./controllers/comment.controller");
-const { getUsers } = require("./controllers/users.controller");
 
+ const apiRouter = require("./routes/api-router")
 const app = express();
 
 app.use(express.json());
-
-app.get("/api", getApiDocs);
-app.get("/api/topics", getTopics);
-app.get("/api/articles/:id", getArticleById);
-app.get("/api/articles", getArticle);
-app.get("/api/articles/:article_id/comments", getCommentPerArticleId);
-app.post("/api/articles/:article_id/comments", postCommentPerArticleId);
-app.patch("/api/articles/:article_id", patchArticleVotes);
-app.delete("/api/comments/:comment_id", removeComment)
-app.get("/api/users", getUsers)
-app.get("/api/comments", getComments)
-
-
+app.use("/api", apiRouter)
 app.all("*", handleNotFound);
 
 //error handling middleware

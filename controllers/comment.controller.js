@@ -28,7 +28,6 @@ const getCommentPerArticleId = (req, res, next) => {
   const postCommentPerArticleId = (req, res, next)=>{
     const { article_id } = req.params; 
     const { username, body } = req.body;
-
     addComment(article_id, username, body)
     .then((comment) => {
       res.status(201).json({ comment });
@@ -37,9 +36,8 @@ const getCommentPerArticleId = (req, res, next) => {
       next(err); 
     });
   }
-
   const removeComment = (req, res, next)=>{
-    const { comment_id } = req.params
+    const { comment_id } = req.params;
    deleteCommentById(comment_id)
    .then(()=>{
     res.status (204).send();
