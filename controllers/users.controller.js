@@ -1,4 +1,4 @@
-const { getAllUsers } = require("../models/users.model.js");
+const { getAllUsers,selectUserByUsername } = require("../models/users.model.js");
 
 const getUsers = (req, res, next) => {
   getAllUsers()
@@ -9,5 +9,17 @@ const getUsers = (req, res, next) => {
         next(err);
     });
 };
+const userByUsername = (req, res, next) => {
+  const { username } = req.params;
+  
+  selectUserByUsername(username)
+  .then((user) =>{
+    res.status(200).send({ user })   
+})
+.catch((err) => {
+  next(err);
+});
 
-module.exports = { getUsers };
+}
+
+module.exports = { getUsers, userByUsername };

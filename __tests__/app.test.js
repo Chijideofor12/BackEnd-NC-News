@@ -333,9 +333,36 @@ describe("/api/comments", ()=>{
           });
           })
         });
+        
     })
+
+    describe("GET /api/users/:username", () => {
+      test("200: Respond with a user object when given a username", () => {
+        return request(app)
+          .get("/api/users/butter_bridge")
+          .expect(200)
+          .then(({ body }) => {
+           const user =  body.user;
+              expect(user).toHaveProperty("username");
+              expect(user).toHaveProperty("name");
+              expect(user).toHaveProperty("avatar_url");
+              expect(typeof user.username).toBe("string");
+              expect(typeof user.name).toBe("string");
+              expect(typeof user.avatar_url).toBe("string");
+            });
+            });
+            test("404: user not found for valid but not existing username", () => {
+              return request(app)
+                .get("/api/users/9999test")
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                  expect(msg).toBe("Username not found");
+                });
+            });
+          });
+      })
    
-  })
+
    describe("GET /api/articles/SORT QUERIES", () => {
     test("200: Returns all articles sorted by created_at by default in descending order", () => {
       return request(app)

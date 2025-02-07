@@ -190,6 +190,17 @@
       }
     ]
   }
+},
+"GET /api/users/:username": {
+  "description": "Fetches a user by their username.",
+  "queries": [],
+  "exampleResponse": {
+    "user": {
+      "username": "tickle122",
+      "name": "Tom Tickle",
+      "avatar_url": "https://example.com/avatar.jpg"
+    }
+  }
 }
 
 }
