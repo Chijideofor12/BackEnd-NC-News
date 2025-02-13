@@ -1,8 +1,7 @@
 const db = require("../db/connection.js");
 
 const selectComments = () => {
-  return db.query("SELECT * FROM comments;")
-  .then(({ rows }) => rows);
+  return db.query("SELECT * FROM comments;").then(({ rows }) => rows);
 };
 const selectCommentPerArticleId = (article_id) => {
   return db
@@ -19,66 +18,96 @@ const selectCommentPerArticleId = (article_id) => {
       );
     })
     .then(({ rows }) => {
-      return rows; 
+      return rows;
     });
 };
 
 const addComment = (article_id, username, body) => {
-
   if (!username || !body) {
     return Promise.reject({ status: 400, msg: "Missing required fields" });
   }
-    if (typeof username !== "string" || typeof body !== "string") {
-      const error = { status: 400, msg: "Invalid data type" };
-      return Promise.reject(error);  
-    }
-  
-    return db.query("SELECT * FROM articles WHERE article_id = $1", [article_id])
-      .then(({ rows }) => {
-        if (rows.length === 0) {
-          return Promise.reject({ status: 404, msg: "Article Id not found" });
-        }
+  if (typeof username !== "string" || typeof body !== "string") {
+    const error = { status: 400, msg: "Invalid data type" };
+    return Promise.reject(error);
+  }
 
-        if (isNaN(article_id)) {
-          return Promise.reject({ status: 400, msg: "Bad Request" });
-        }
-  
-        return db.query("SELECT * FROM users WHERE username = $1", [username])
-          .then(({ rows }) => {
-            if (rows.length === 0) {
-              return Promise.reject({ status: 404, msg: "User not found" });
-            }
-  
-            const queryStr = `
+  return db
+    .query("SELECT * FROM articles WHERE article_id = $1", [article_id])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Article Id not found" });
+      }
+
+      if (isNaN(article_id)) {
+        return Promise.reject({ status: 400, msg: "Bad Request" });
+      }
+
+      return db
+        .query("SELECT * FROM users WHERE username = $1", [username])
+        .then(({ rows }) => {
+          if (rows.length === 0) {
+            return Promise.reject({ status: 404, msg: "User not found" });
+          }
+
+          const queryStr = `
               INSERT INTO comments (article_id, author, body)
               VALUES ($1, $2, $3)
               RETURNING comment_id, author, body, article_id, created_at;
             `;
-  
-            return db.query(queryStr, [article_id, username, body])
-              .then(({ rows }) => {
-                return rows[0];
-              });
-          });
-      });
-  };
 
-  const deleteCommentById = (comment_id) => {
-    if (isNaN(comment_id)) {
-      return Promise.reject({ status: 400, msg: "Invalid comment ID" });
-    }
-  
-    return db.query("DELETE FROM comments WHERE comment_id = $1 RETURNING *;", [comment_id])
-      .then(({ rows }) => {
-        if (rows.length === 0) {
-          return Promise.reject({ status: 404, msg: "Comment not found" });
-        }
-        return;
-      });
-  };
-  
-  
-  module.exports = { selectCommentPerArticleId, addComment, deleteCommentById, selectComments }
-  
+          return db
+            .query(queryStr, [article_id, username, body])
+            .then(({ rows }) => {
+              return rows[0];
+            });
+        });
+    });
+};
 
+const deleteCommentById = (comment_id) => {
+  if (isNaN(comment_id)) {
+    return Promise.reject({ status: 400, msg: "Invalid comment ID" });
+  }
 
+  return db
+    .query("DELETE FROM comments WHERE comment_id = $1 RETURNING *;", [
+      comment_id,
+    ])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Comment not found" });
+      }
+      return;
+    });
+};
+const patchCommentVote = (comment_id, inc_votes) => {
+  if (isNaN(comment_id)) {
+    return Promise.reject({ status: 400, msg: "Invalid comment ID" });
+  }
+
+  if (isNaN(inc_votes)) {
+    return Promise.reject({ status: 400, msg: "Invalid data type" });
+  }
+
+  return db
+    .query(
+      "UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *;",
+      [inc_votes, comment_id]
+    )
+    .then(({ rows }) => {
+      console.log(rows, "rows<<<");
+
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Comment not found" });
+      }
+      return rows[0];
+    });
+};
+
+module.exports = {
+  selectCommentPerArticleId,
+  addComment,
+  deleteCommentById,
+  selectComments,
+  patchCommentVote,
+};

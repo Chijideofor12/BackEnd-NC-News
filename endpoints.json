@@ -33,57 +33,56 @@
       ]
     }
   },
-  
+
   "GET /api/articles": {
-  "description": "Retrieves all articles with optional sorting and topic filtering queries.",
-  "queries": [
-    "sort_by (column name)",
-    "order (asc or desc)",
-    "topic (string)"
-  ],
-  "default": {
-    "sort_by": "created_at",
-    "order": "desc"
-  },
-  "exampleRequest": "/api/articles?sort_by=title&order=asc&topic=coding",
-  "exampleResponse": {
-    "articles": [
+    "description": "Retrieves all articles with optional sorting and topic filtering queries.",
+    "queries": [
+      "sort_by (column name)",
+      "order (asc or desc)",
+      "topic (string)"
+    ],
+    "default": {
+      "sort_by": "created_at",
+      "order": "desc"
+    },
+    "exampleRequest": "/api/articles?sort_by=title&order=asc&topic=coding",
+    "exampleResponse": {
+      "articles": [
+        {
+          "article_id": 1,
+          "title": "Seafood substitutions are increasing",
+          "topic": "cooking",
+          "author": "weegembump",
+          "created_at": "2025-01-30T00:20:03.908Z",
+          "votes": 10,
+          "comment_count": 6
+        },
+        {
+          "article_id": 2,
+          "title": "Why Coding is Fun",
+          "topic": "coding",
+          "author": "johndoe",
+          "created_at": "2025-01-31T00:20:03.908Z",
+          "votes": 15,
+          "comment_count": 2
+        }
+      ]
+    },
+    "errorResponses": [
       {
-        "article_id": 1,
-        "title": "Seafood substitutions are increasing",
-        "topic": "cooking",
-        "author": "weegembump",
-        "created_at": "2025-01-30T00:20:03.908Z",
-        "votes": 10,
-        "comment_count": 6
+        "status": 400,
+        "msg": "Invalid sort query"
       },
       {
-        "article_id": 2,
-        "title": "Why Coding is Fun",
-        "topic": "coding",
-        "author": "johndoe",
-        "created_at": "2025-01-31T00:20:03.908Z",
-        "votes": 15,
-        "comment_count": 2
+        "status": 400,
+        "msg": "Invalid order query"
+      },
+      {
+        "status": 404,
+        "msg": "Topic not found"
       }
     ]
   },
-  "errorResponses": [
-    {
-      "status": 400,
-      "msg": "Invalid sort query"
-    },
-    {
-      "status": 400,
-      "msg": "Invalid order query"
-    },
-    {
-      "status": 404,
-      "msg": "Topic not found"
-    }
-  ]
-},
-
 
   "GET /api/articles/:article_id": {
     "description": "serves an article object based on the given article_id",
@@ -104,8 +103,7 @@
     }
   },
 
-
-"GET /api/articles/:article_id/comments": {
+  "GET /api/articles/:article_id/comments": {
     "description": "serves a comment object based on the given article_id",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
@@ -121,45 +119,45 @@
     }
   },
 
-"POST /api/articles/:article_id/comments": {
-  "description": "Adds a new comment to the specified article using the given article_id. The comment must include a username and body. Returns the newly added comment object.",
-  "requests": {
-    "body": {
-      "username": "string (required)",
-      "body": "string (required)"
+  "POST /api/articles/:article_id/comments": {
+    "description": "Adds a new comment to the specified article using the given article_id. The comment must include a username and body. Returns the newly added comment object.",
+    "requests": {
+      "body": {
+        "username": "string (required)",
+        "body": "string (required)"
+      }
+    },
+    "queries": [],
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 19,
+        "author": "lurker",
+        "body": "I love IceCream",
+        "article_id": 5,
+        "created_at": "2025-01-30T00:20:03.908Z"
+      }
     }
   },
-  "queries": [],
-  "exampleResponse": {
-    "comment": {
-      "comment_id": 19,
-      "author": "lurker",
-      "body": "I love IceCream",
-      "article_id": 5,
-      "created_at": "2025-01-30T00:20:03.908Z"
-    }
-  }
-},
-"PATCH /api/articles/:article_id": {
-  "description": "Updates the votes of a specific article by the given article_id.",
-  "requests": {
-    "body": {
-      "inc_votes": "number (required)"
+  "PATCH /api/articles/:article_id": {
+    "description": "Updates the votes of a specific article by the given article_id.",
+    "requests": {
+      "body": {
+        "inc_votes": "number (required)"
+      }
+    },
+    "exampleRequest": {
+      "inc_votes": 1
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "A Great Article",
+        "votes": 101,
+        "author": "john_doe",
+        "created_at": "2025-01-30T00:20:03.908Z"
+      }
     }
   },
-  "exampleRequest": {
-    "inc_votes": 1
-  },
-  "exampleResponse": {
-    "article": {
-      "article_id": 1,
-      "title": "A Great Article",
-      "votes": 101,
-      "author": "john_doe",
-      "created_at": "2025-01-30T00:20:03.908Z"
-    }
-  }
-},
 
   "DELETE /api/comments/:comment_id": {
     "description": "Deletes a comment based on the given comment_id.",
@@ -173,39 +171,49 @@
       "404": "Comment not found"
     }
   },
-  "GET /api/users": {
-  "description": "Fetches a list of all users with their details.",
-  "queries": [],
-  "exampleResponse": {
-    "users": [
-      {
-        "username": "butter_bridge",
-        "name": "jonny",
-        "avatar_url":  "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
-      },
-      {
-        "username": "rogersop",
-        "name": "paul",
-        "avatar_url":  "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4"
+
+  "PATCH /api/comments/:comment_id": {
+    "description": "Updates the votes on a comment. Accepts an object in the form { inc_votes: newVote } in the request body, where newVote indicates how much to increment (or decrement) the comment's current votes. Responds with the updated comment.",
+    "queries": [],
+    "exampleRequestBody": { "inc_votes": 1 },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 1,
+        "author": "user",
+        "body": "This is a sample comment.",
+        "votes": 15,
+        "created_at": "2020-01-01T00:00:00.000Z"
       }
-    ]
-  }
-},
-"GET /api/users/:username": {
-  "description": "Fetches a user by their username.",
-  "queries": [],
-  "exampleResponse": {
-    "user": {
-      "username": "tickle122",
-      "name": "Tom Tickle",
-      "avatar_url": "https://example.com/avatar.jpg"
+    }
+  },
+
+  "GET /api/users": {
+    "description": "Fetches a list of all users with their details.",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        },
+        {
+          "username": "rogersop",
+          "name": "paul",
+          "avatar_url": "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4"
+        }
+      ]
+    }
+  },
+  "GET /api/users/:username": {
+    "description": "Fetches a user by their username.",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "username": "tickle122",
+        "name": "Tom Tickle",
+        "avatar_url": "https://example.com/avatar.jpg"
+      }
     }
   }
 }
-
-}
-
-
-
-
-
