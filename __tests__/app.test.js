@@ -387,6 +387,87 @@ describe("POST /api/articles", () => {
   });
 });
 
+//pagination
+describe("GET /api/articles (pagination)", () => {
+  test("200: responds with paginated articles, default limit of 10, and total_count", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("total_count", expect.any(Number));
+        expect(body).toHaveProperty("articles", expect.any(Array));
+        expect(body.articles).toHaveLength(10);
+        body.articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(Number),
+              article_img_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+  test("200: responds with paginated articles with a custom limit", () => {
+    return request(app)
+      .get("/api/articles?limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("total_count", expect.any(Number));
+        expect(body.articles).toHaveLength(5);
+      });
+  });
+});
+test("200: responds with correct articles for a given page", () => {
+  return request(app)
+    .get("/api/articles?limit=5&p=2")
+    .expect(200)
+    .then(({ body }) => {
+      expect(body).toHaveProperty("total_count", expect.any(Number));
+      expect(body.articles).toHaveLength(5);
+    });
+});
+
+test("400: responds with error if limit is not a number", () => {
+  return request(app)
+    .get("/api/articles?limit=not-a-number")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request: limit must be a number");
+    });
+});
+test("400: responds with error if p (page) is not a number", () => {
+  return request(app)
+    .get("/api/articles?p=not-a-number")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request: p must be a number");
+    });
+});
+test("200: responds with an empty array if page is out of range", () => {
+  return request(app)
+    .get("/api/articles?p=9999")
+    .expect(200)
+    .then(({ body }) => {
+      expect(body.articles).toEqual([]);
+      expect(body.total_count).toBeGreaterThanOrEqual(0);
+    });
+});
+
+test("200: responds with all articles when limit is greater than total articles", () => {
+  return request(app)
+    .get("/api/articles?limit=1000")
+    .expect(200)
+    .then(({ body }) => {
+      expect(body.articles.length).toBeLessThanOrEqual(body.total_count);
+    });
+});
+
 describe("GET /api/articles/SORT QUERIES", () => {
   test("200: Returns all articles sorted by created_at by default in descending order", () => {
     return request(app)

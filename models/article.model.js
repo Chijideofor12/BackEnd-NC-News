@@ -33,6 +33,24 @@ const selectArticle = (queries) => {
   const order = queries.order || "desc";
   const topic = queries.topic;
 
+  // Pagination defaults
+  const limit = queries.limit ? parseInt(queries.limit, 10) : 10;
+  const p = queries.p ? parseInt(queries.p, 10) : 1;
+
+  if (queries.limit && isNaN(limit)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: limit must be a number",
+    });
+  }
+  if (queries.p && isNaN(p)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: p must be a number",
+    });
+  }
+  const offset = (p - 1) * limit;
+
   const validColumnNamesToSortBy = [
     "article_id",
     "title",
@@ -47,25 +65,27 @@ const selectArticle = (queries) => {
   if (!validColumnNamesToSortBy.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Invalid sort query" });
   }
-
   if (!validOrders.includes(order)) {
     return Promise.reject({ status: 400, msg: "Invalid order query" });
   }
 
-  let SQLString = `
-      SELECT 
-          articles.article_id,          
-          articles.title,
-          articles.topic,
-          articles.author,
-          articles.created_at,
-          articles.votes,
-          articles.article_img_url,
-          COUNT(comments.comment_id) AS comment_count
-      FROM 
-          articles
-      LEFT JOIN comments ON articles.article_id = comments.article_id`;
+  let countSQL = `SELECT COUNT(*)::int AS total_count FROM articles`;
+  let countValues = [];
 
+  let mainQuery = `
+      SELECT 
+        articles.article_id,          
+        articles.title,
+        articles.topic,
+        articles.author,
+        articles.created_at,
+        articles.votes,
+        articles.article_img_url,
+        COUNT(comments.comment_id)::INT AS comment_count
+      FROM 
+        articles
+      LEFT JOIN comments ON articles.article_id = comments.article_id
+    `;
   const queryValues = [];
 
   if (topic) {
@@ -76,36 +96,54 @@ const selectArticle = (queries) => {
           return Promise.reject({ status: 404, msg: "Topic not found" });
         }
 
-        SQLString += ` WHERE articles.topic = $1`;
+        countSQL += ` WHERE topic = $1`;
+        countValues.push(topic);
+        mainQuery += ` WHERE articles.topic = $1`;
         queryValues.push(topic);
 
-        SQLString += ` 
-                  GROUP BY 
-                      articles.article_id,          
-                      articles.title, 
-                      articles.topic,
-                      articles.author,
-                      articles.created_at,
-                      articles.votes,
-                      articles.article_img_url          
-                  ORDER BY ${sort_by} ${order};`;
+        mainQuery += `
+            GROUP BY 
+              articles.article_id,          
+              articles.title, 
+              articles.topic,
+              articles.author,
+              articles.created_at,
+              articles.votes,
+              articles.article_img_url
+            ORDER BY ${sort_by} ${order}
+            LIMIT $${queryValues.length + 1} OFFSET $${queryValues.length + 2};
+          `;
+        queryValues.push(limit, offset);
 
-        return db.query(SQLString, queryValues).then(({ rows }) => rows);
+        return db.query(countSQL, countValues).then(({ rows: countRows }) => {
+          const total_count = countRows[0].total_count;
+          return db.query(mainQuery, queryValues).then(({ rows }) => {
+            return { total_count, articles: rows };
+          });
+        });
       });
-  }
-
-  SQLString += ` 
-      GROUP BY 
+  } else {
+    mainQuery += `
+        GROUP BY 
           articles.article_id,          
           articles.title, 
           articles.topic,
           articles.author,
           articles.created_at,
           articles.votes,
-          articles.article_img_url          
-      ORDER BY ${sort_by} ${order};`;
+          articles.article_img_url
+        ORDER BY ${sort_by} ${order}
+        LIMIT $1 OFFSET $2;
+      `;
+    queryValues.push(limit, offset);
 
-  return db.query(SQLString).then(({ rows }) => rows);
+    return db.query(countSQL, countValues).then(({ rows: countRows }) => {
+      const total_count = countRows[0].total_count;
+      return db.query(mainQuery, queryValues).then(({ rows }) => {
+        return { total_count, articles: rows };
+      });
+    });
+  }
 };
 
 const updateArticleVotes = (article_id, inc_votes) => {
