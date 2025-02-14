@@ -45,6 +45,9 @@ describe("GET /api/topics", () => {
       });
   });
 });
+
+//articles
+
 describe("/api/articles/:article_id", () => {
   describe("GET /api/articles/:article_id", () => {
     test("200: Responds with an article object based on the given article_id", () => {
@@ -274,6 +277,113 @@ describe("api/articles/:article_id/comments", () => {
           expect(body.msg).toBe("Article Id not found");
         });
     });
+  });
+});
+
+describe("POST /api/articles", () => {
+  test("201: responds with the newly added article", () => {
+    const newArticle = {
+      author: "lurker",
+      title: "ChiTest",
+      topic: "mitch",
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      body: "I love IceCream",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        const article = body.article;
+        expect(article).toHaveProperty("article_id", expect.any(Number));
+        expect(article).toHaveProperty("author", "lurker");
+        expect(article).toHaveProperty("title", "ChiTest");
+        expect(article).toHaveProperty("body", "I love IceCream");
+        expect(article).toHaveProperty("topic", "mitch");
+        expect(article).toHaveProperty(
+          "article_img_url",
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+        expect(article).toHaveProperty("votes", 0);
+        expect(article).toHaveProperty("created_at", expect.any(String));
+        expect(article).toHaveProperty("comment_count", 0);
+      });
+  });
+  test("201: responds with the newly added article and defaults article_img_url if not provided", () => {
+    const defaultArticleImgUrl = "https://default.image.url/default.jpg";
+
+    const newArticleWithoutImg = {
+      author: "lurker",
+      title: "DefaultImgArticle",
+      topic: "mitch",
+      body: "I love IceCream",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticleWithoutImg)
+      .expect(201)
+      .then(({ body }) => {
+        const article = body.article;
+        expect(article).toHaveProperty("article_id", expect.any(Number));
+        expect(article).toHaveProperty("author", "lurker");
+        expect(article).toHaveProperty("title", "DefaultImgArticle");
+        expect(article).toHaveProperty("body", "I love IceCream");
+        expect(article).toHaveProperty("topic", "mitch");
+        expect(article).toHaveProperty("article_img_url", defaultArticleImgUrl);
+        expect(article).toHaveProperty("votes", 0);
+        expect(article).toHaveProperty("created_at", expect.any(String));
+        expect(article).toHaveProperty("comment_count", 0);
+      });
+  });
+  test("400: responds with an error if required fields are missing", () => {
+    const incompleteArticle = {
+      author: "lurker",
+      topic: "mitch",
+      body: "I love IceCream",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(incompleteArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.error).toBe("Bad Request");
+      });
+  });
+  test("404: responds with an error if the provided author does not exist", () => {
+    const invalidAuthorArticle = {
+      author: "nonexistentAuthor",
+      title: "Invalid Author Article",
+      topic: "mitch",
+      body: "I love IceCream",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(invalidAuthorArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Author not found");
+      });
+  });
+  test("404: responds with an error if the provided topic does not exist", () => {
+    const invalidTopicArticle = {
+      author: "lurker",
+      title: "Invalid Topic Article",
+      topic: "nonexistentTopic",
+      body: "I love IceCream",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(invalidTopicArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic not found");
+      });
   });
 });
 

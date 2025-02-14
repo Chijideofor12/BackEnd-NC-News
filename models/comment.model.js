@@ -95,8 +95,6 @@ const patchCommentVote = (comment_id, inc_votes) => {
       [inc_votes, comment_id]
     )
     .then(({ rows }) => {
-      console.log(rows, "rows<<<");
-
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Comment not found" });
       }

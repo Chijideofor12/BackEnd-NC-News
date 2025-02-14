@@ -51,9 +51,6 @@ const removeComment = (req, res, next) => {
 const updateVoteComment = (req, res, next) => {
   const { comment_id } = req.params;
   const { inc_votes } = req.body;
-  console.log("i am here in updateVoteComment");
-  console.log(inc_votes, comment_id, ",<<<<<<<");
-
   patchCommentVote(comment_id, inc_votes)
     .then((comment) => {
       res.status(200).send({ comment });
