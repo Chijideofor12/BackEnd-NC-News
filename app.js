@@ -4,19 +4,26 @@ const {
   handleNotFound,
   handleCustomErrors,
 } = require("./errors");
+const cors = require("cors");
+app.use(cors());
 
- const apiRouter = require("./routes/api-router")
+const apiRouter = require("./routes/api-router");
 const app = express();
 
 app.use(express.json());
-app.use("/api", apiRouter)
+app.use("/api", apiRouter);
 app.all("*", handleNotFound);
 
 //error handling middleware
 
 app.use((err, req, res, next) => {
-  if (err.code === "22P02" ||  err.msg === "Invalid data type" || err.msg === "Missing required fields" || err.msg === "Invalid comment ID") {
-   return  res.status(400).send({ error: "Bad Request" });
+  if (
+    err.code === "22P02" ||
+    err.msg === "Invalid data type" ||
+    err.msg === "Missing required fields" ||
+    err.msg === "Invalid comment ID"
+  ) {
+    return res.status(400).send({ error: "Bad Request" });
   } else {
     next(err);
   }
