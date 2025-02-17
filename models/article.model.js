@@ -34,7 +34,7 @@ const selectArticle = (queries) => {
   const topic = queries.topic;
 
   // Pagination defaults
-  const limit = queries.limit ? parseInt(queries.limit, 10) : 10;
+  const limit = queries.limit ? parseInt(queries.limit, 10) : 5;
   const p = queries.p ? parseInt(queries.p, 10) : 1;
 
   if (queries.limit && isNaN(limit)) {

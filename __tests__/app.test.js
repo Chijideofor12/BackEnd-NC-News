@@ -396,7 +396,7 @@ describe("GET /api/articles (pagination)", () => {
       .then(({ body }) => {
         expect(body).toHaveProperty("total_count", expect.any(Number));
         expect(body).toHaveProperty("articles", expect.any(Array));
-        expect(body.articles).toHaveLength(10);
+        expect(body.articles).toHaveLength(5);
         body.articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
