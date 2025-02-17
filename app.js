@@ -4,11 +4,11 @@ const {
   handleNotFound,
   handleCustomErrors,
 } = require("./errors");
+const app = express();
 const cors = require("cors");
 app.use(cors());
 
 const apiRouter = require("./routes/api-router");
-const app = express();
 
 app.use(express.json());
 app.use("/api", apiRouter);
