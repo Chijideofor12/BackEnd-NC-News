@@ -386,6 +386,33 @@ describe("POST /api/articles", () => {
       });
   });
 });
+describe("DELETE /api/articles/:article_id", () => {
+  test("204: Successfully deletes the article and returns no content", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body: { articles } }) => {
+        expect(articles.some((article) => article.article_id === 2)).toBe(true);
+
+        return request(app).delete("/api/articles/2").expect(204);
+      })
+      .then(() => {
+        return request(app).get("/api/articles").expect(200);
+      })
+      .then(({ body: { articles } }) => {
+        expect(articles.some((article) => article.article_id === 1)).toBe(
+          false
+        );
+      });
+  });
+  test("404: responds with not found for a non-existent article", () => {
+    return request(app)
+      .delete("/api/articles/9999")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Article not found");
+      });
+  });
+});
 
 //pagination
 describe("GET /api/articles (pagination)", () => {

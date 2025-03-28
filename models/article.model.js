@@ -28,6 +28,37 @@ const selectArticleById = (article_id) => {
   });
 };
 
+const deleteArticleById = (article_id) => {
+  const checkSQL = `
+    SELECT article_id 
+    FROM articles 
+    WHERE article_id = $1;
+  `;
+  return db
+    .query(checkSQL, [article_id])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        // Reject the promise if the article is not found.
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      }
+      // Delete all comments associated with the article.
+      return db.query("DELETE FROM comments WHERE article_id = $1", [
+        article_id,
+      ]);
+    })
+    .then(() => {
+      // Delete the article itself.
+      return db.query(
+        "DELETE FROM articles WHERE article_id = $1 RETURNING *",
+        [article_id]
+      );
+    })
+    .then(({ rows }) => {
+      // Return the deleted article data (if it is needed by the controller)
+      return rows[0];
+    });
+};
+
 const selectArticle = (queries) => {
   const sort_by = queries.sort_by || "created_at";
   const order = queries.order || "desc";
@@ -232,4 +263,5 @@ module.exports = {
   selectArticle,
   updateArticleVotes,
   postArticle,
+  deleteArticleById,
 };
