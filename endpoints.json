@@ -116,6 +116,12 @@
     }
   },
 
+  "DELETE /api/articles/:article_id": {
+    "description": "Deletes the article object with the given article_id along with any associated comments. Responds with a 204 No Content status upon successful deletion.",
+    "queries": [],
+    "exampleResponse": {}
+  },
+
   "GET /api/articles/:article_id/comments": {
     "description": "serves a comment object based on the given article_id",
     "queries": ["author", "topic", "sort_by", "order"],
